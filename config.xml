@@ -3,7 +3,7 @@
     <access origin="http://app.diepkhuc.com" subdomains="false"/>
     <tizen:application id="8VC78cUzGL.DiepKhucMp3" package="8VC78cUzGL" required_version="2.3.2"/>
     <content src="index.html"/>
-    <tizen:content-security-policy>media-src 'self' http://dv.diepkhuc.com</tizen:content-security-policy>
+    <tizen:content-security-policy>media-src 'self' http://dv.diepkhuc.com; script-src 'self' 'unsafe-eval'</tizen:content-security-policy>
     <feature name="http://tizen.org/feature/screen.size.all"/>
     <icon src="icon.png"/>
     <name>DiepKhucMp3</name>

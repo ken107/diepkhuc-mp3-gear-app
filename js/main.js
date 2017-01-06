@@ -1,27 +1,74 @@
 
-window.onload = function () {
-    // TODO:: Do your initialization job
-	var audio = new Audio();
+var audio = new Audio();
 
-    // add eventListener for tizenhwkey
-    document.addEventListener('tizenhwkey', function(e) {
-        if(e.keyName === "back") {
-			try {
-			    tizen.application.getCurrentApplication().exit();
-			} catch (ignore) {
-			}
-		}
+state = "SEARCH";
+query = "";
+items = null;
+index = 0;
+playing = false;
+
+function search() {
+	items = null;
+	ajaxGet("http://app.diepkhuc.com:30112/diepkhuc-mp3/search?limit=50&orderBy=lastPlayed%20DESC&query=" + encodeURIComponent(query), function(result) {
+		items = result.items;
+		index = 0;
+		state = "LIST";
+	})
+}
+
+function select() {
+	audio.src = "http://dv.diepkhuc.com/mp3/" + items[index].id + ".mp3";
+	audio.load();
+	audio.play();
+	playing = true;
+	state = "VIEW";
+}
+
+function togglePlayPause() {
+	if (playing) {
+		audio.pause();
+		playing = false;
+	}
+	else {
+		audio.play();
+		playing = true;
+	}
+}
+
+function scroll(up) {
+	if (up) index--;
+	else index++;
+	index = (index + items.length) % items.length;
+}
+
+function goBack() {
+	switch (state) {
+		case "VIEW": state = "LIST"; break;
+		case "LIST": state = "SEARCH"; break;
+		default: tizen.application.getCurrentApplication().exit();
+	}
+}
+
+window.onload = function() {
+	document.addEventListener("tizenhwkey", function(e) {
+		if (e.keyName == "back") goBack();
 	});
+	document.addEventListener("rotarydetent", function(e) {
+		scroll(e.detail.direction == 'CCW');
+	});
+}
 
-    // Sample code
-    var textbox = document.querySelector('.contents');
-    textbox.addEventListener("click", function(){
-    	var box = document.querySelector('#textbox');
-    	box.innerHTML = (box.innerHTML === "Basic") ? "Sample" : "Basic";
+function ajaxGet(url, callback) {
+	var httpRequest = new XMLHttpRequest();
+	httpRequest.onreadystatechange = function() {
+		if (httpRequest.readyState === XMLHttpRequest.DONE) {
+			if (httpRequest.status === 200) callback(JSON.parse(httpRequest.responseText));
+		}
+	};
+	httpRequest.open('GET', url);
+	httpRequest.send();
+}
 
-    	audio.src = "http://dv.diepkhuc.com/mp3/27254.mp3";
-    	audio.load();
-    	audio.play();
-    });
-
-};
+function toggle(elem, visible) {
+	elem.style.display = visible ? "" : "none";
+}
