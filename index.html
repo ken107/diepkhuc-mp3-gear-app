@@ -17,14 +17,18 @@
 		<tr>
 			<td valign="middle" align="center"
 				bind-statement-1="toggle(thisElem, #state == 'SEARCH')">
-				<input type="text" bind-event-change="#query = thisElem.value" size="15" />
+				<input type="text" bind-event-change="#query = thisElem.value" size="12" />
 				<input type="button" value="Search" bind-event-click="this.search()" />
 			</td>
 			<td valign="middle" align="center"
-				bind-statement-1="toggle(thisElem, #state == 'LIST')"
+				bind-statement-1="toggle(thisElem, #state == 'LIST' && !!#items[#index])"
 				bind-event-click="this.select()">
-				<div class="artist">{{#index+1}}. {{#items[#index].singer}}</div>
-				<div class="song">{{#items[#index].songName}}</div>
+				<div class="artist">- {{#index+1}} -</div>
+				<div class="song">{{#items[#index].title}}</div>
+			</td>
+			<td valign="middle" align="center"
+				bind-statement-1="toggle(thisElem, #state == 'LIST' && !#items[#index])">
+				<div class="loading">Loading...</div>
 			</td>
 			<td valign="middle" align="center"
 				bind-statement-1="toggle(thisElem, #state == 'VIEW')"

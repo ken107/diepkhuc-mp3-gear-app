@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://lsdsoftware.com/DiepKhucMp3" version="1.0.0" viewmodes="maximized">
-    <access origin="http://app.diepkhuc.com" subdomains="false"></access>
+    <access origin="http://app.diepkhuc.com" subdomains="false"/>
     <tizen:application id="8VC78cUzGL.DiepKhucMp3" package="8VC78cUzGL" required_version="2.3.2"/>
     <content src="index.html"/>
-    <tizen:content-security-policy>media-src 'self' http://dv.diepkhuc.com; script-src 'self' 'unsafe-eval'</tizen:content-security-policy>
+    <tizen:content-security-policy>media-src 'self' http://dv.diepkhuc.com https://support2.lsdsoftware.com; script-src 'self' 'unsafe-eval'</tizen:content-security-policy>
     <feature name="http://tizen.org/feature/screen.size.all"/>
     <icon src="icon.png"/>
     <name>DiepKhuc Mp3</name>

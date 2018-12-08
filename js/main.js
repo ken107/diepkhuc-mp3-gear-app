@@ -3,21 +3,37 @@ var audio = new Audio();
 
 state = "SEARCH";
 query = "";
+pageToken = null;
 items = null;
 index = 0;
 playing = false;
 
 function search() {
+	pageToken = null;
 	items = null;
-	ajaxGet("http://app.diepkhuc.com:30112/diepkhuc-mp3/search?limit=50&orderBy=lastPlayed%20DESC&query=" + encodeURIComponent(query), function(result) {
+	loadMore(function(result) {
+		pageToken = result.nextPageToken;
 		items = result.items;
 		index = 0;
 		state = "LIST";
 	})
 }
 
+function loadMore(callback) {
+	ajaxPost("https://support.lsdsoftware.com:30299/diepkhuc-mp3?capabilities=search-1.0", {
+		method: "search",
+		query: query,
+		maxResults: pageToken ? 25 : 5,
+		pageToken: pageToken
+	},
+	callback)
+}
+
 function select() {
-	audio.src = "http://dv.diepkhuc.com/mp3/" + items[index].id + ".mp3";
+	var item = items[index];
+	if (item.type == 1) audio.src = "http://dv.diepkhuc.com/mp3/" + item.id + ".mp3";
+	else if (item.type == 2) audio.src = "https://support2.lsdsoftware.com/diepkhuc-mp3/download/" + item.id + "/file.m4a";
+
 	audio.load();
 	audio.play();
 	playing = true;
@@ -36,9 +52,17 @@ function togglePlayPause() {
 }
 
 function scroll(up) {
-	if (up) index--;
-	else index++;
-	index = (index + items.length) % items.length;
+	if (up) {
+		if (index > 0) index--;
+	}
+	else {
+		index++;
+		if (index >= items.length) {
+			loadMore(function(result) {
+				items.push.apply(items, result.items);
+			})
+		}
+	}
 }
 
 function goBack() {
@@ -58,15 +82,17 @@ window.onload = function() {
 	});
 }
 
-function ajaxGet(url, callback) {
-	var httpRequest = new XMLHttpRequest();
-	httpRequest.onreadystatechange = function() {
-		if (httpRequest.readyState === XMLHttpRequest.DONE) {
-			if (httpRequest.status === 200) callback(JSON.parse(httpRequest.responseText));
-		}
+function ajaxPost(url, data, fulfill) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json");
+	xhr.onreadystatechange = function() {
+	  if (xhr.readyState == 4) {
+	    if (xhr.status == 200) fulfill(JSON.parse(xhr.responseText));
+	    else console.error(xhr.responseText || xhr.statusText || xhr.status);
+	  }
 	};
-	httpRequest.open('GET', url);
-	httpRequest.send();
+	xhr.send(JSON.stringify(data));
 }
 
 function toggle(elem, visible) {
